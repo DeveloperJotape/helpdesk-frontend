@@ -69,6 +69,8 @@ export default function EmployeeForm({ onClose, onSaved }: EmployeeFormProps) {
       onClose();
     } catch (error) {
       console.error("Erro ao criar colaborador:", error);
+    } finally {
+      onClose();
     }
   };
 

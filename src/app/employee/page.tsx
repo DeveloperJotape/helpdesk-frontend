@@ -9,27 +9,29 @@ import { useState, useEffect } from "react";
 import EmployeeForm from "./components/EmployeeForm";
 import EmployeeTable from "./components/EmployeeTable";
 import { EmployeeResponseDTO } from "../types/EmployeeResponseDTO";
+import ToastNotification from "../components/toast-notification/page";
 
 export default function EmployeesPage() {
   const [employees, setEmployees] = useState<EmployeeResponseDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+
+  const fetchAllEmployees = async () => {
+    try {
+      const data = await getEmployees();
+      setEmployees(data);
+    } catch (err) {
+      setError("Erro ao buscar colaboradores: " + err);
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchEmployees = async () => {
-      try {
-        const data = await getEmployees();
-        setEmployees(data);
-      } catch (err) {
-        setError("Erro ao buscar colaboradores: " + err);
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchEmployees();
+    fetchAllEmployees();
   }, []);
 
   const departments = {
@@ -56,10 +58,24 @@ export default function EmployeesPage() {
 
   const safeEmployees = employees || [];
 
+  const handleDeleteSuccess = () => {
+    fetchAllEmployees();
+    setToastMessage("Colaborador excluído com sucesso!");
+    setTimeout(() => {
+      setToastMessage("");
+    }, 3000);
+  };
+
   return (
     <div className="flex min-h-screen">
       <Sidebar />
       <div className="flex-1 p-8">
+        {toastMessage && (
+          <ToastNotification
+            message={toastMessage}
+            onClose={() => setToastMessage("")}
+          />
+        )}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold mb-8">Lista de Colaboradores</h1>
           <button
@@ -75,7 +91,7 @@ export default function EmployeesPage() {
           <dialog open className="modal">
             <EmployeeForm
               onClose={() => setModalOpen(false)}
-              onSaved={() => window.location.reload()}
+              onSaved={fetchAllEmployees}
             />
           </dialog>
         )}
@@ -85,6 +101,7 @@ export default function EmployeesPage() {
             employees={safeEmployees}
             departments={departments}
             userRole={userRole}
+            onDeleteSuccess={handleDeleteSuccess}
           />
         </div>
       </div>
