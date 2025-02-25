@@ -1,9 +1,6 @@
 "use client";
 
 import Sidebar from "../components/sidebar/page";
-{
-  /*import useEmployees from "../hooks/useEmployees";*/
-}
 import { getEmployees } from "@/service/employeeService";
 import { useState, useEffect } from "react";
 import EmployeeForm from "./components/EmployeeForm";
@@ -58,12 +55,26 @@ export default function EmployeesPage() {
 
   const safeEmployees = employees || [];
 
-  const handleDeleteSuccess = () => {
-    fetchAllEmployees();
-    setToastMessage("Colaborador excluído com sucesso!");
+  const showToast = (message: string) => {
+    setToastMessage(message);
     setTimeout(() => {
       setToastMessage("");
     }, 3000);
+  };
+
+  const handleDeleteSuccess = () => {
+    fetchAllEmployees();
+    showToast("Colaborador excluído com sucesso!");
+  };
+
+  const handleEditSuccess = () => {
+    fetchAllEmployees();
+    showToast("Colaborador atualizado com sucesso!");
+  };
+
+  const handleCreateSuccess = () => {
+    fetchAllEmployees();
+    showToast("Colaborador criado com sucesso!");
   };
 
   return (
@@ -91,7 +102,7 @@ export default function EmployeesPage() {
           <dialog open className="modal">
             <EmployeeForm
               onClose={() => setModalOpen(false)}
-              onSaved={fetchAllEmployees}
+              onSuccess={handleCreateSuccess}
             />
           </dialog>
         )}
@@ -102,6 +113,7 @@ export default function EmployeesPage() {
             departments={departments}
             userRole={userRole}
             onDeleteSuccess={handleDeleteSuccess}
+            onEditSuccess={handleEditSuccess}
           />
         </div>
       </div>

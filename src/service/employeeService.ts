@@ -17,3 +17,14 @@ export const createEmployee = async (
 export const deleteEmployee = async (id: string): Promise<void> => {
   await api.delete(`/employees/${id}`);
 };
+
+export const updateEmployee = async (
+  id: string,
+  employee: EmployeeCreateDTO
+): Promise<EmployeeResponseDTO> => {
+  const response = await api.put<EmployeeResponseDTO>(
+    `/employees/${id}`,
+    employee
+  );
+  return response.data;
+};

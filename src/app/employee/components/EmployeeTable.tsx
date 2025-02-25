@@ -2,20 +2,25 @@ import { EmployeeResponseDTO } from "@/app/types/EmployeeResponseDTO";
 import { Pencil, Trash } from "lucide-react";
 import React, { useState } from "react";
 import EmployeeDeleteModal from "./EmployeeDeleteModal";
+import EmployeeForm from "./EmployeeForm";
 
 interface EmployeeTableProps {
   employees: EmployeeResponseDTO[];
   departments: { [key: string]: string };
   userRole: { [key: string]: string };
   onDeleteSuccess: () => void;
+  onEditSuccess: () => void;
 }
 
 const EmployeeTable: React.FC<EmployeeTableProps> = ({
   employees,
   departments,
   onDeleteSuccess,
+  onEditSuccess,
 }) => {
   const [selectedEmployee, setSelectedEmployee] =
+    useState<EmployeeResponseDTO | null>(null);
+  const [editingEmployee, setEditingEmployee] =
     useState<EmployeeResponseDTO | null>(null);
 
   return (
@@ -52,7 +57,10 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
                 </span>
               </td>
               <td className="flex gap-2">
-                <button className="btn btn-ghost btn-sm">
+                <button
+                  className="btn btn-ghost btn-sm"
+                  onClick={() => setEditingEmployee(employee)}
+                >
                   <Pencil size={18} className="text-success" />
                 </button>
                 <button
@@ -73,6 +81,16 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
           onSuccess={() => {
             setSelectedEmployee(null);
             onDeleteSuccess();
+          }}
+        />
+      )}
+      {editingEmployee && (
+        <EmployeeForm
+          employee={editingEmployee}
+          onClose={() => setEditingEmployee(null)}
+          onSuccess={() => {
+            setEditingEmployee(null);
+            onEditSuccess();
           }}
         />
       )}
